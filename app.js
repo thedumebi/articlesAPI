@@ -62,9 +62,9 @@ app.route("/articles")
 
 //////////////Request Targetting A Specific Article/////////////////
 
-app.route("/articles/:articleTitle")
+app.route("/articles/:articleId")
 .get(function(req, res) {
-  Article.findOne({title: req.params.articleTitle}, function(err, foundArticle) {
+  Article.findById(req.params.articleId, function(err, foundArticle) {
     if (foundArticle) {
       res.send(foundArticle);
     } else {
@@ -73,8 +73,8 @@ app.route("/articles/:articleTitle")
   });
 })
 .put(function(req, res) {
-  Article.update(
-    {title: req.params.articleTitle},
+  Article.findByIdAndUpdate(
+    req.params.articleId,
     {title: req.body.title, content: req.body.content},
     {overwrite: true},
     function(err) {
@@ -86,8 +86,8 @@ app.route("/articles/:articleTitle")
     });
 })
 .patch(function(req, res) {
-  Article.update(
-    {title: req.params.articleTitle},
+  Article.findByIdAndUpdate(
+    req.params.articleId,
     {$set: req.body},
     function(err) {
       if (!err) {
@@ -98,7 +98,7 @@ app.route("/articles/:articleTitle")
     });
 })
 .delete(function(req, res) {
-  Article.deleteOne({title: req.params.articleTitle}, function(err) {
+  Article.findByIdAndDelete(req.params.articleId, function(err) {
     if (!err) {
       res.send("Successfully deleted article.");
     } else {
