@@ -15,8 +15,9 @@ app.set('view engine', 'ejs');
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
-  extended: true
+  extended: false
 }));
+app.use(bodyParser.json());
 app.use(cors());
 app.use(session({
   secret: process.env.SECRET,
@@ -66,6 +67,7 @@ passport.deserializeUser(function(id, done) {
 
 app.route("/articles")
   .get(function(req, res) {
+    console.log("fetched");
     Article.find(function(err, foundArticles) {
       if (!err) {
         res.send(foundArticles);
@@ -150,21 +152,37 @@ app.route("/articles/:articleId")
     });
   });
 
-app.route("/login")
-  .post(function(req, res) {
-    const user = new User({
-      username: req.body.email,
-      password: req.body.password
-    });
+app.post("/login", function(req, res) {
+  passport.authenticate("local", (err, user, info) => {
+    console.log("user", user);
+    console.log("info", info);
+    if (err) {return err}
+    if (!user) {return res.send("failure")}
     req.login(user, function(err) {
-      if (err) {
-        console.log(err);
-      } else {
-        passport.authenticate("local")(req, res, function() {
-          res.send("Success");
-        });
-      }
+      if (err) {console.log(err);}
+      console.log(res.status);
+      return res.status(200).json({authenticated: true})
     });
+  })(req, res);
+  // console.log(req.body);
+  //   const user = new User({
+  //     username: req.body.email,
+  //     password: req.body.password
+  //   });
+  //   console.log(user);
+  //   req.login(user, function(err) {
+  //     if (err) {
+  //       alert(err)
+  //     } else {
+  //       passport.authenticate("local")(req, res, function() {
+  //         const authenticated = Boolean(typeof req.user !== "undefined");
+  //         console.log(authenticated);
+  //         res.status(200).json({
+  //           authenticated
+  //         });
+  //       });
+  //     }
+  //   });
   });
 
 app.route("/register")
@@ -175,7 +193,8 @@ app.route("/register")
           console.log(err);
           res.send(err);
         } else {
-          passport.authenticate("local")(req, res, function() {
+          passport.authenticate("local", function(req, res) {
+            console.log("x", req.user);
             res.send("Success");
           });
         }
