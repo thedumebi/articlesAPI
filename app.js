@@ -15,7 +15,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
-  extended: false
+  extended: true
 }));
 app.use(bodyParser.json());
 app.use(cors());
@@ -67,7 +67,6 @@ passport.deserializeUser(function(id, done) {
 
 app.route("/articles")
   .get(function(req, res) {
-    console.log("fetched");
     Article.find(function(err, foundArticles) {
       if (!err) {
         res.send(foundArticles);
@@ -84,7 +83,7 @@ app.route("/articles")
     });
     newArticle.save(function(err) {
       if (!err) {
-        res.send("Success");
+        res.send({status: "Successfully saved"});
       } else {
         res.send(err);
       }
@@ -94,7 +93,7 @@ app.route("/articles")
   .delete(function(req, res) {
     Article.deleteMany({}, function(err) {
       if (!err) {
-        res.send("Sucessfully deleted all articles");
+        res.send({status: "Successfully Deleted"});
       } else {
         res.send(err);
       }
@@ -109,7 +108,7 @@ app.route("/articles/:articleId")
       if (foundArticle) {
         res.send(foundArticle);
       } else {
-        res.send("No articles matching that title was found.");
+        res.send({err: "No articles matching that title was found."});
       }
     });
   })
@@ -123,7 +122,7 @@ app.route("/articles/:articleId")
       },
       function(err) {
         if (!err) {
-          res.send("Successfully updated the article.")
+          res.send({status: "Successfully updated the article."});
         } else {
           res.send(err);
         }
@@ -136,7 +135,7 @@ app.route("/articles/:articleId")
       },
       function(err) {
         if (!err) {
-          res.send("Successfully updated article.");
+          res.send({status: "Successfully updated the article."});
         } else {
           res.send(err);
         }
@@ -145,7 +144,7 @@ app.route("/articles/:articleId")
   .delete(function(req, res) {
     Article.findByIdAndDelete(req.params.articleId, function(err) {
       if (!err) {
-        res.send("Successfully deleted article.");
+        res.send({status: "Successfully Deleted"});
       } else {
         res.send(err);
       }
